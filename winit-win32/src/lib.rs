@@ -459,6 +459,7 @@ pub struct WindowAttributesWindows {
     pub(crate) title_background_color: Option<Color>,
     pub(crate) title_text_color: Option<Color>,
     pub(crate) corner_preference: Option<CornerPreference>,
+    pub(crate) activatable: bool,
 }
 
 impl Default for WindowAttributesWindows {
@@ -478,6 +479,7 @@ impl Default for WindowAttributesWindows {
             title_background_color: None,
             title_text_color: None,
             corner_preference: None,
+            activatable: true,
         }
     }
 }
@@ -608,6 +610,12 @@ impl WindowAttributesWindows {
     /// Supported starting with Windows 11 Build 22000.
     pub fn with_corner_preference(mut self, corners: CornerPreference) -> Self {
         self.corner_preference = Some(corners);
+        self
+    }
+
+    /// This sets or removes `WS_EX_NOACTIVATE`.
+    pub fn with_activatable(mut self, activatable: bool) -> Self {
+        self.activatable = activatable;
         self
     }
 }

@@ -382,6 +382,17 @@ impl Window {
             IconType::Big => self.window_state_lock().taskbar_icon = None,
         }
     }
+
+    fn set_activatable(&self, activatable: bool) {
+        let window = self.window;
+        let window_state = Arc::clone(&self.window_state);
+        self.thread_executor.execute_in_thread(move || {
+            let _ = &window;
+            WindowState::set_window_flags(window_state.lock().unwrap(), window.hwnd(), |f| {
+                f.set(WindowFlags::ACTIVATABLE, activatable)
+            });
+        });
+    }
 }
 
 impl Drop for Window {
@@ -1353,6 +1364,8 @@ impl InitData<'_> {
         if let Some(corner) = self.win_attributes.corner_preference {
             win.set_corner_preference(corner);
         }
+
+        win.set_activatable(self.win_attributes.activatable);
     }
 }
 unsafe fn init(
@@ -1386,6 +1399,7 @@ unsafe fn init(
     // so the diffing later can work.
     window_flags.set(WindowFlags::CLOSABLE, true);
     window_flags.set(WindowFlags::CLIP_CHILDREN, win_attributes.clip_children);
+    window_flags.set(WindowFlags::ACTIVATABLE, win_attributes.activatable);
 
     let mut fallback_parent = || match win_attributes.owner {
         Some(parent) => {
